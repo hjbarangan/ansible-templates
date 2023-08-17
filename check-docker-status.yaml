@@ -1,0 +1,19 @@
+---
+- name: Check Docker Status
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Check if Docker is running
+      command: systemctl is-active docker
+      register: docker_status
+      ignore_errors: yes
+
+    - name: Display status message
+      debug:
+        msg: "Docker is {{ docker_status.stdout }}"
+
+    - name: Display message if Docker is not running
+      fail:
+        msg: "Docker is not running"
+      when: docker_status.rc != 0
