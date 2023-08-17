@@ -2,6 +2,7 @@
 ---
 - name: Check Disk Usage
   hosts: local
+  gather_facts: no
 
   tasks:
     - name: Run df command to check disk usage
