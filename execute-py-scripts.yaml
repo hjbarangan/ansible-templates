@@ -1,0 +1,37 @@
+- name: Execute Python Scripts on Remote Server
+  hosts: proxmox_vm
+  gather_facts: yes
+  become_user: vm1
+
+  tasks:
+    - name: Check if Python is Installed
+      command: "which python3"
+      register: python_check
+      ignore_errors: yes
+
+    - name: Display Python Version
+      command: "python3 --version"
+      register: python_version
+
+    - name: Display Python Status
+      debug:
+        msg: "Python is {{ 'installed' if python_check.rc == 0 else 'not installed' }}, version is {{ python_version.stdout }}"
+
+    - name: Check if Python Script Exists
+      stat:
+        path: "/opt/test.py"
+      register: script_check
+
+    - name: Display Script Status
+      debug:
+        msg: "Python script exists: {{ script_check.stat.exists | bool }}"
+
+    - name: Execute Python Script
+      ansible.builtin.shell: "python3 /opt/test.py"
+      register: script_result
+      when: python_check.rc == 0 and script_check.stat.exists
+
+    - name: Display Script Output
+      debug:
+        var: script_result.stdout
+      when: script_result.rc == 0
